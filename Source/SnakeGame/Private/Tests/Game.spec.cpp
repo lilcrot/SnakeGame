@@ -14,7 +14,7 @@ void FSnakeGame::Define()
     using namespace SnakeGame;
 
     Describe("CoreGame", [this]() {  //
-        It("GridShouldExists",
+        It("GridShouldExist",
             [this]()
             {
                 const FSettings GameSettings{10, 10};

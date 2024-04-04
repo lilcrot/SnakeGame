@@ -7,6 +7,7 @@
 #include "Tests/Utils/TestUtils.h"
 #include "Framework/SG_GameMode.h"
 #include "Framework/SG_Pawn.h"
+#include "Misc/PathViews.h"
 
 BEGIN_DEFINE_SPEC(FSnakeFramework, "Snake",
     EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter | EAutomationTestFlags::HighPriority)
@@ -16,24 +17,47 @@ END_DEFINE_SPEC(FSnakeFramework)
 void FSnakeFramework::Define()
 {
     using namespace Test;
+
+       Describe("Framework",
+        [this]()
+        {
+            It("GameMapMightExist",
+                [this]()
+                {
+                    const TArray<FString> SnakeGameMaps = {"M_Game"};
+
+                    TArray<FString> AllProjectMaps;
+                    IFileManager::Get().FindFilesRecursive(AllProjectMaps, *FPaths::ProjectContentDir(), TEXT("*.umap"), true, false);
+
+                    for (const auto& SnakeGameMap : SnakeGameMaps)
+                    {
+                        const bool SnakeMapExists = AllProjectMaps.ContainsByPredicate(
+                            [&](const FString& ProjectMap)
+                            {
+                                FStringView OutPath, OutName, OutExt;
+                                FPathViews::Split(FStringView(ProjectMap), OutPath, OutName, OutExt);
+                                return SnakeGameMap.Equals(FString(OutName));
+                            });
+                        const FString What = SnakeGameMap + FString(" might exist");
+                        TestTrue(What, SnakeMapExists);
+                    }
+                });
+        });
+
     Describe("Framework",
         [this]()
         {
             BeforeEach(
                 [this]()
                 {
-                    AutomationOpenMap("GameLevel");
+                    AutomationOpenMap("M_Game");
                     World = GetTestGameWorld();
                 });
-            It("GameMapMightExist", [this]() { TestNotNull("World Exists", World); });
             It("ClassesMightBeSetupCorrectly",
                 [this]()
                 {
                     TestNotNull("Snake game mode set up", Cast<ASG_GameMode>(World->GetAuthGameMode()));
-
-                    const auto FirstPC = World->GetFirstPlayerController();
-                    TestNotNull("FirstPlayerController exists", FirstPC);
-                    TestNotNull("Snake pawn set up", Cast<ASG_Pawn>(FirstPC->GetPawn()));
+                    TestNotNull("Snake pawn set up", Cast<ASG_Pawn>(World->GetFirstPlayerController()->GetPawn()));
                 });
             xIt("PawnLocationShouldBeAdjustCorrectly", [this]() { unimplemented(); });
         });
