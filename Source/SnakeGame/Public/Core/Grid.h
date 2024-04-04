@@ -9,7 +9,7 @@ namespace SnakeGame
 class Grid
 {
 public:
-    // It's implied that InDim does NOT include walls
+    // @param InDim: it's implied that does NOT include walls
     Grid(const FDimension& InDim);
 
     FDimension GetDimension() const;
@@ -19,8 +19,7 @@ private:
     TArray<ECellGridType> Cells;
 
     void InitWalls();
-    void PrintDebug();
 
-    int32 PosToCellsIndex(const int32 x, const int32 y) const;
+    uint32 PosToCellsIndex(const uint32 x, const uint32 y) const;
 };
 }  // namespace SnakeGame

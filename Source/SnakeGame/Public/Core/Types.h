@@ -7,8 +7,8 @@ namespace SnakeGame
 {
 struct FDimension
 {
-    int32 Width = 0;
-    int32 Height = 0;
+    uint32 Width = 0;
+    uint32 Height = 0;
 };
 
 enum class ECellGridType

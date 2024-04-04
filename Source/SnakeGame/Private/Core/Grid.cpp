@@ -26,8 +26,6 @@ Grid::Grid(const FDimension& InDim)  //
 
     Cells.Init(ECellGridType::Empty, Dim.Width * Dim.Height);
     InitWalls();
-
-    PrintDebug();
 }
 
 FDimension Grid::GetDimension() const
@@ -37,9 +35,9 @@ FDimension Grid::GetDimension() const
 
 void Grid::InitWalls()
 {
-    for (int32 y = 0; y < Dim.Height; y++)
+    for (uint32 y = 0; y < Dim.Height; y++)
     {
-        for (int32 x = 0; x < Dim.Width; x++)
+        for (uint32 x = 0; x < Dim.Width; x++)
         {
             if (x == 0 || x == Dim.Width - 1 || y == 0 || y == Dim.Height - 1)
             {
@@ -49,36 +47,7 @@ void Grid::InitWalls()
     }
 }
 
-void Grid::PrintDebug()
-{
-#if !UE_BUILD_SHIPPING
-    for (int32 y = 0; y < Dim.Height; y++)
-    {
-        FString Line;
-        for (int32 x = 0; x < Dim.Width; x++)
-        {
-            TCHAR Symbol{};
-            switch (Cells[PosToCellsIndex(x, y)])
-            {
-                case ECellGridType::Empty:
-                {
-                    Symbol = '0';
-                    break;
-                }
-                case ECellGridType::Wall:
-                {
-                    Symbol = '*';
-                    break;
-                }
-            }
-            Line.AppendChar(Symbol).AppendChar(' ');
-        }
-        UE_LOG(LogGrid, Display, TEXT("%s"), *Line);
-    }
-#endif
-}
-
-int32 Grid::PosToCellsIndex(const int32 x, const int32 y) const
+uint32 Grid::PosToCellsIndex(const uint32 x, const uint32 y) const
 {
     return x + y * Dim.Width;
 }
