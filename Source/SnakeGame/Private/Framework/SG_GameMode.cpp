@@ -5,6 +5,10 @@
 #include "Core/Types.h"
 #include "World/SG_Grid.h"
 #include "Framework/SG_Pawn.h"
+#include "Engine/ExponentialHeightFog.h"
+#include "Components/ExponentialHeightFogComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "World/SG_WorldTypes.h"
 
 void ASG_GameMode::StartPlay()
 {
@@ -41,5 +45,54 @@ void ASG_GameMode::StartPlay()
         checkf(CoreGame->GetGameGrid().IsValid(), TEXT("GameGrid of the CoreGame doesn't exist"));
 
         Pawn->UpdateLocation(CoreGame->GetGameGrid()->GetDimension(), CellSize, GridTransform);
+    }
+
+    /* update colors */
+    {
+        FindFog();
+
+        checkf(ColorsTable, TEXT("ColorsTable isn't set"));
+        const int32 RowsCount = ColorsTable->GetRowNames().Num();
+        checkf(RowsCount >= 1, TEXT("ColorsTable is empty"))
+
+        ColorTableIndex = FMath::RandRange(0, RowsCount - 1);
+        UpdateColors();
+    }
+}
+
+void ASG_GameMode::NextColor()
+{
+    if (ColorsTable)
+    {
+        ColorTableIndex = (ColorTableIndex + 1) % ColorsTable->GetRowNames().Num();
+        UpdateColors();
+    }
+}
+
+void ASG_GameMode::FindFog()
+{
+    TArray<AActor*> Fogs;
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), AExponentialHeightFog::StaticClass(), Fogs);
+    if (Fogs.Num() > 0)
+    {
+        Fog = Cast<AExponentialHeightFog>(Fogs[0]);
+    }
+}
+
+void ASG_GameMode::UpdateColors()
+{
+    const FName RowName = ColorsTable->GetRowNames()[ColorTableIndex];
+    const auto* ColorSet = ColorsTable->FindRow<FSnakeColors>(RowName, {});
+    if (ColorSet)
+    {
+        // update grid
+        GridVisual->UpdateColors(*ColorSet);
+
+        // update scene ambient color via fog
+        if (Fog && Fog->GetComponent())
+        {
+            Fog->GetComponent()->SkyAtmosphereAmbientContributionColorScale = ColorSet->SkyAtmosphereColor;
+            Fog->MarkComponentsRenderStateDirty();
+        }
     }
 }

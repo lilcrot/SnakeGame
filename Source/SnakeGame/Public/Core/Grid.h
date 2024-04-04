@@ -21,6 +21,6 @@ private:
     void InitWalls();
     void PrintDebug();
 
-    int32 PosToCellsIndex(const int32 x, const int32 y) const;
+    uint32 PosToCellsIndex(const uint32 x, const uint32 y) const;
 };
 }  // namespace SnakeGame
