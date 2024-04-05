@@ -67,9 +67,6 @@ private:
     float Timeout;
 };
 
-int32 GetActionBindingIndexByName(UInputComponent* InputComp, const FString& ActionName, EInputEvent InputEvent);
-int32 GetAxisBindingIndexByName(UInputComponent* InputComp, const FString& AxisName);
-
 FString GetTestDataDir();
 
 template <class T>
@@ -81,10 +78,6 @@ T* FindWidgetByClass()
 }
 
 UWidget* FindWidgetByName(const UUserWidget* Widget, const FName& WidgetName);
-
-void DoInputAction(UInputComponent* InputComponent, const FString& ActionName, const FKey& Key);
-void JumpPressed(UInputComponent* InputComponent);
-void PausePressed(UInputComponent* InputComponent);
 
 class FTakeScreenshotLatentCommand : public IAutomationLatentCommand
 {

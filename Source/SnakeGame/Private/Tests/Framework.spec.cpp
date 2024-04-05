@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Misc/AutomationTest.h"
 #include "Tests/Utils/TestUtils.h"
+#include "Tests/TestConstants.h"
 #include "Framework/SG_GameMode.h"
 #include "Framework/SG_Pawn.h"
 #include "Misc/PathViews.h"
@@ -17,8 +18,9 @@ END_DEFINE_SPEC(FSnakeFramework)
 void FSnakeFramework::Define()
 {
     using namespace Test;
+    using namespace TestConstants;
 
-       Describe("Framework",
+    Describe("Framework",
         [this]()
         {
             It("GameMapMightExist",
@@ -50,7 +52,7 @@ void FSnakeFramework::Define()
             BeforeEach(
                 [this]()
                 {
-                    AutomationOpenMap("M_Game");
+                    AutomationOpenMap(MainGameMapName);
                     World = GetTestGameWorld();
                 });
             It("ClassesMightBeSetupCorrectly",
