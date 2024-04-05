@@ -25,7 +25,7 @@ void ASG_Grid::SetModel(const TSharedPtr<SnakeGame::Grid>& Grid, const uint32 In
         UE_LOG(LogWorldGrid, Fatal, TEXT("Grid is null, game aborted!"));
     }
 
-    GridDimension = Grid.Get()->GetDimension();
+    GridDimension = Grid->GetDimension();
     CellSize = InCellSize;
     WorldWidth = GridDimension.Width * CellSize;
     WorldHeight = GridDimension.Height * CellSize;
