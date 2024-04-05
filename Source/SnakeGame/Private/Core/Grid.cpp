@@ -33,6 +33,26 @@ FDimension Grid::GetDimension() const
     return Dim;
 }
 
+void Grid::Update(const TPositionPtr* Links, ECellGridType CellType)
+{
+    FreeCellsByType(CellType);
+
+    auto* Link = Links;
+    while (Link)
+    {
+        const uint32 Index = PosToCellsIndex(Link->GetValue());
+
+        Cells[Index] = CellType;
+        IndexesByTypeMap[CellType].Add(Index);
+        Link = Link->GetNextNode();
+    }
+}
+
+bool Grid::HitTest(const FPosition& Position, ECellGridType CellType) const
+{
+    return Cells[PosToCellsIndex(Position)] == CellType;
+}
+
 void Grid::InitWalls()
 {
     for (uint32 y = 0; y < Dim.Height; y++)
@@ -41,13 +61,32 @@ void Grid::InitWalls()
         {
             if (x == 0 || x == Dim.Width - 1 || y == 0 || y == Dim.Height - 1)
             {
-                Cells[PosToCellsIndex(x, y)] = ECellGridType::Wall;
+                const uint32 Index = PosToCellsIndex(x, y);
+
+                Cells[Index] = ECellGridType::Wall;
+                IndexesByTypeMap[ECellGridType::Wall].Add(Index);
             }
         }
     }
 }
 
+void Grid::FreeCellsByType(ECellGridType CellType)
+{
+    if (!IndexesByTypeMap.Contains(CellType)) return;
+
+    for (int32 i = 0; i < IndexesByTypeMap[CellType].Num(); ++i)
+    {
+        const uint32 Index = IndexesByTypeMap[CellType][i];
+        Cells[Index] = ECellGridType::Empty;
+    }
+    IndexesByTypeMap[CellType].Empty();
+}
+
 uint32 Grid::PosToCellsIndex(const uint32 x, const uint32 y) const
 {
     return x + y * Dim.Width;
+}
+uint32 Grid::PosToCellsIndex(const FPosition& Position) const
+{
+    return PosToCellsIndex(Position.x, Position.y);
 }

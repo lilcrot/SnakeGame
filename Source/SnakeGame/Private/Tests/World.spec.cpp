@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Misc/AutomationTest.h"
 #include "Tests/Utils/TestUtils.h"
+#include "Tests/TestConstants.h"
 #include "World/SG_Grid.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
@@ -24,6 +25,7 @@ END_DEFINE_SPEC(FSnakeWorld)
 void FSnakeWorld::Define()
 {
     using namespace Test;
+    using namespace TestConstants;
 
     Describe("WorldGrid",
         [this]()
@@ -31,7 +33,7 @@ void FSnakeWorld::Define()
             BeforeEach(
                 [this]()
                 {
-                    AutomationOpenMap("M_TestEmptyLevel");
+                    AutomationOpenMap(TestEmptyMapName);
                     World = GetTestGameWorld();
 
                     constexpr char* GridBPName = "Blueprint'/Game/World/BP_SnakeGrid.BP_SnakeGrid'";
@@ -91,7 +93,7 @@ void FSnakeWorld::Define()
             BeforeEach(
                 [this]()
                 {
-                    AutomationOpenMap("M_Game");
+                    AutomationOpenMap(MainGameMapName);
                     World = GetTestGameWorld();
                 });
             It("OnlyOneValidGridActorShouldExist",
@@ -99,8 +101,14 @@ void FSnakeWorld::Define()
                 {
                     TArray<AActor*> Grids;
                     UGameplayStatics::GetAllActorsOfClass(World, ASG_Grid::StaticClass(), Grids);
-                    TestTrueExpr(Grids.Num() == 1);
-                    TestNotNull("Grid actor exists", Grids[0]);
+
+                    const bool bHaveOnlyOneGrid = Grids.Num() == 1;
+                    TestTrueExpr(bHaveOnlyOneGrid);
+
+                    if (bHaveOnlyOneGrid)
+                    {
+                        TestNotNull("Grid actor exists", Grids[0]);
+                    }
                 });
         });
 }

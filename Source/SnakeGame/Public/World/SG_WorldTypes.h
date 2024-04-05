@@ -12,14 +12,20 @@ struct FSnakeColors : public FTableRowBase
     GENERATED_BODY()
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-    FLinearColor GridBackgroundColor;
+    FLinearColor GridBackgroundColor = FLinearColor::Black;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-    FLinearColor GridWallColor;
+    FLinearColor GridWallColor = FLinearColor::Red;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-    FLinearColor GridLineColor;
+    FLinearColor GridLineColor = FLinearColor::White;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-    FLinearColor SkyAtmosphereColor;
+    FLinearColor SkyAtmosphereColor = FLinearColor::Blue;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+    FLinearColor SnakeHeadColor = FLinearColor::White;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+    FLinearColor SnakeBodyColor = FLinearColor::Green;
 };
