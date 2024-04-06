@@ -5,6 +5,7 @@
 #include "Core/Types.h"
 #include "World/SG_Grid.h"
 #include "World/SG_Snake.h"
+#include "World/SG_Food.h"
 #include "Framework/SG_Pawn.h"
 #include "Engine/ExponentialHeightFog.h"
 #include "Components/ExponentialHeightFogComponent.h"
@@ -31,22 +32,29 @@ void ASG_GameMode::StartPlay()
     UWorld* World = GetWorld();
     checkf(World, TEXT("World doesn't exist"));
 
-    const FTransform GridTransform = FTransform::Identity;
+    const FTransform GridOrigin = FTransform::Identity;
 
     /* init world grid */
     {
-        GridVisual = World->SpawnActorDeferred<ASG_Grid>(GridVisualClass, GridTransform);
+        GridVisual = World->SpawnActorDeferred<ASG_Grid>(GridVisualClass, GridOrigin);
         checkf(GridVisual, TEXT("GridVisual failed to spawn"));
         GridVisual->SetModel(CoreGame->GetGrid(), CellSize);
 
-        GridVisual->FinishSpawning(GridTransform);
+        GridVisual->FinishSpawning(GridOrigin);
     }
 
     /* init world snake */
     {
-        SnakeVisual = World->SpawnActorDeferred<ASG_Snake>(SnakeVisualClass, GridTransform);
+        SnakeVisual = World->SpawnActorDeferred<ASG_Snake>(SnakeVisualClass, GridOrigin);
         SnakeVisual->SetModel(CoreGame->GetSnake(), CellSize, CoreGame->GetGrid()->GetDimension());
-        SnakeVisual->FinishSpawning(GridTransform);
+        SnakeVisual->FinishSpawning(GridOrigin);
+    }
+
+    /* init world food */
+    {
+        FoodVisual = World->SpawnActorDeferred<ASG_Food>(FoodVisualClass, GridOrigin);
+        FoodVisual->SetModel(CoreGame->GetFood(), CellSize, CoreGame->GetGrid()->GetDimension());
+        FoodVisual->FinishSpawning(GridOrigin);
     }
 
     /* set pawn location fitting grid in viewport */
@@ -58,7 +66,7 @@ void ASG_GameMode::StartPlay()
         checkf(Pawn, TEXT("Pawn doesn't exist"));
         checkf(CoreGame->GetGrid().IsValid(), TEXT("GameGrid of the CoreGame doesn't exist"));
 
-        Pawn->UpdateLocation(CoreGame->GetGrid()->GetDimension(), CellSize, GridTransform);
+        Pawn->UpdateLocation(CoreGame->GetGrid()->GetDimension(), CellSize, GridOrigin);
     }
 
     /* update colors */
@@ -103,6 +111,7 @@ void ASG_GameMode::UpdateColors()
     {
         GridVisual->UpdateColors(*ColorSet);
         SnakeVisual->UpdateColors(*ColorSet);
+        FoodVisual->UpdateColor(ColorSet->FoodColor);
 
         // update scene ambient color via fog
         if (Fog && Fog->GetComponent())
@@ -118,7 +127,7 @@ void ASG_GameMode::SetupInput()
     UWorld* World = GetWorld();
     if (!World) return;
 
-    if (auto* PC = Cast<APlayerController>(World->GetFirstPlayerController()))
+    if (auto* PC = World->GetFirstPlayerController())
     {
         if (auto* InputSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
         {
@@ -126,26 +135,26 @@ void ASG_GameMode::SetupInput()
         }
 
         auto* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PC->InputComponent);
-        EnhancedInputComponent->BindAction(MoveForwardInputAction, ETriggerEvent::Triggered, this, &ThisClass::OnMoveForward);
-        EnhancedInputComponent->BindAction(MoveRightInputAction, ETriggerEvent::Triggered, this, &ThisClass::OnMoveRight);
+        EnhancedInputComponent->BindAction(MoveForwardInputAction, ETriggerEvent::Started, this, &ThisClass::OnMoveForward);
+        EnhancedInputComponent->BindAction(MoveRightInputAction, ETriggerEvent::Started, this, &ThisClass::OnMoveRight);
         EnhancedInputComponent->BindAction(ResetGameInputAction, ETriggerEvent::Started, this, &ThisClass::OnGameReset);
     }
 }
 
 void ASG_GameMode::OnMoveForward(const FInputActionValue& Value)
 {
-    const FVector2D InputValue = Value.Get<FVector2D>();
-    if (InputValue.X == 0.0) return;
+    const float InputValue = Value.Get<float>();
+    if (InputValue == 0.0) return;
 
-    SnakeInput = SnakeGame::FInput{0, static_cast<int8>(InputValue.X)};
+    SnakeInput = SnakeGame::FInput{0, static_cast<int8>(InputValue)};
 }
 
 void ASG_GameMode::OnMoveRight(const FInputActionValue& Value)
 {
-    const FVector2D InputValue = Value.Get<FVector2D>();
-    if (InputValue.X == 0.0) return;
+    const float InputValue = Value.Get<float>();
+    if (InputValue == 0.0) return;
 
-    SnakeInput = SnakeGame::FInput{static_cast<int8>(InputValue.X), 0};
+    SnakeInput = SnakeGame::FInput{static_cast<int8>(InputValue), 0};
 }
 
 void ASG_GameMode::OnGameReset(const FInputActionValue& Value)
@@ -157,7 +166,9 @@ void ASG_GameMode::OnGameReset(const FInputActionValue& Value)
 
         GridVisual->SetModel(CoreGame->GetGrid(), CellSize);
         SnakeVisual->SetModel(CoreGame->GetSnake(), CellSize, CoreGame->GetGrid()->GetDimension());
-        SnakeInput = SnakeGame::FInput{1, 0};
+        FoodVisual->SetModel(CoreGame->GetFood(), CellSize, CoreGame->GetGrid()->GetDimension());
+
+        SnakeInput = SnakeGame::FInput::Default;
         NextColor();
     }
 }
@@ -178,8 +189,7 @@ SnakeGame::FSettings ASG_GameMode::MakeSettings() const
     GS.GridDimension = SnakeGame::FDimension{GridDimension.X, GridDimension.Y};
     GS.GameSpeed = GameSpeed;
     GS.SnakeConfiguration.DefaultSize = SnakeDefaultSize;
-    GS.SnakeConfiguration.StartPosition =
-        SnakeGame::FPosition{GridDimension.X / 2 + 1, GridDimension.Y / 2 + 1};  // @todo: proper way to handle +1
+    GS.SnakeConfiguration.StartPosition = SnakeGame::Grid::GetCenter(GridDimension.X, GridDimension.Y);
 
     return GS;
 }

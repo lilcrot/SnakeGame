@@ -7,6 +7,8 @@
 #include "Tests/Utils/TestUtils.h"
 #include "Tests/TestConstants.h"
 #include "World/SG_Grid.h"
+#include "World/SG_Snake.h"
+#include "World/SG_Food.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
 #include "Core/Grid.h"
@@ -27,7 +29,7 @@ void FSnakeWorld::Define()
     using namespace Test;
     using namespace TestConstants;
 
-    Describe("WorldGrid",
+    Describe("World.Grid",
         [this]()
         {
             BeforeEach(
@@ -87,7 +89,7 @@ void FSnakeWorld::Define()
                 });
         });
 
-    Describe("WorldGrid",
+    Describe("World",
         [this]()
         {
             BeforeEach(
@@ -96,18 +98,30 @@ void FSnakeWorld::Define()
                     AutomationOpenMap(MainGameMapName);
                     World = GetTestGameWorld();
                 });
-            It("OnlyOneValidGridActorShouldExist",
+            It("OnlyOneValidModelActorShouldExist",
                 [this]()
                 {
-                    TArray<AActor*> Grids;
-                    UGameplayStatics::GetAllActorsOfClass(World, ASG_Grid::StaticClass(), Grids);
+                    TArray<AActor*> Actors;
 
-                    const bool bHaveOnlyOneGrid = Grids.Num() == 1;
-                    TestTrueExpr(bHaveOnlyOneGrid);
-
-                    if (bHaveOnlyOneGrid)
+                    UGameplayStatics::GetAllActorsOfClass(World, ASG_Grid::StaticClass(), Actors);
+                    TestTrueExpr(Actors.Num() == 1);
+                    if (Actors.IsValidIndex(0))
                     {
-                        TestNotNull("Grid actor exists", Grids[0]);
+                        TestNotNull("Grid actor exists", Actors[0]);
+                    }
+
+                    UGameplayStatics::GetAllActorsOfClass(World, ASG_Snake::StaticClass(), Actors);
+                    TestTrueExpr(Actors.Num() == 1);
+                    if (Actors.IsValidIndex(0))
+                    {
+                        TestNotNull("Snake actor exists", Actors[0]);
+                    }
+
+                    UGameplayStatics::GetAllActorsOfClass(World, ASG_Food::StaticClass(), Actors);
+                    TestTrueExpr(Actors.Num() == 1);
+                    if (Actors.IsValidIndex(0))
+                    {
+                        TestNotNull("Food actor exists", Actors[0]);
                     }
                 });
         });

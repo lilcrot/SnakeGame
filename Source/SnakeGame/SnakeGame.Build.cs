@@ -10,7 +10,7 @@ public class SnakeGame : ModuleRules
 
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "EnhancedInput" });
 
-        PrivateDependencyModuleNames.AddRange(new string[] { });
+        PublicIncludePaths.AddRange(new string[] { "SnakeGame" });
 
         if (Target.Configuration != UnrealTargetConfiguration.Shipping)
         {

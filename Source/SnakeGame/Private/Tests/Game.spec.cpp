@@ -5,25 +5,30 @@
 #include "CoreMinimal.h"
 #include "Misc/AutomationTest.h"
 #include "Core/Game.h"
+#include "Core/Grid.h"
 
-DEFINE_SPEC(FSnakeGame, "Snake",
+using namespace SnakeGame;
+
+BEGIN_DEFINE_SPEC(FSnakeGame, "Snake",
     EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter | EAutomationTestFlags::HighPriority)
+TUniquePtr<Game> CoreGame;
+END_DEFINE_SPEC(FSnakeGame)
 
 void FSnakeGame::Define()
 {
-    using namespace SnakeGame;
-
-    Describe("CoreGame", [this]() {  //
-        It("GridShouldExist",
+    Describe("Core.Game", [this]() {  //
+        BeforeEach(
             [this]()
             {
-                FSettings GameSettings;
-                GameSettings.SnakeConfiguration.StartPosition = SnakeGame::FPosition{
-                    GameSettings.GridDimension.Width / 2 + 1, GameSettings.GridDimension.Height / 2 + 1};  // @todo: proper way to handle +1
-
-                const auto CoreGame = MakeUnique<Game>(GameSettings);
-                TestTrueExpr(CoreGame->GetGrid().IsValid());
+                FSettings GS;
+                GS.GridDimension = FDimension{10, 10};
+                GS.SnakeConfiguration.StartPosition = Grid::GetCenter(GS.GridDimension.Width, GS.GridDimension.Height);
+                CoreGame = MakeUnique<Game>(GS);
             });
+
+        It("GridMightExist", [this]() { TestTrueExpr(CoreGame->GetGrid().IsValid()); });
+        It("SnakeMightExist", [this]() { TestTrueExpr(CoreGame->GetSnake().IsValid()); });
+        It("FoodMightExist", [this]() { TestTrueExpr(CoreGame->GetFood().IsValid()); });
     });
 }
 
