@@ -2,7 +2,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Containers/List.h"
+#include "SnakeGame/Public/Containers/List.h"
 
 namespace SnakeGame
 {
@@ -15,15 +15,18 @@ struct FDimension
 struct FPosition
 {
     FPosition(uint32 inX, uint32 inY) : x(inX), y(inY) {}
-    uint32 x;
-    uint32 y;
+    FPosition(const FPosition& position = FPosition::Zero) : x(position.x), y(position.y) {}
 
-    FPosition& operator+=(const FPosition& obj)
+    uint32 x; /* possible values: (-1, 0, 1) */
+    uint32 y; /* possible values: (-1, 0, 1) */
+
+    FPosition& operator+=(const FPosition& rhs)
     {
-        x += obj.x;
-        y += obj.y;
+        x += rhs.x;
+        y += rhs.y;
         return *this;
     }
+    bool operator==(const FPosition& rhs) { return x == rhs.x && y == rhs.y; }
 
     static const FPosition Zero;
 };
@@ -45,7 +48,8 @@ enum class ECellGridType
 {
     Empty = 0,
     Wall = 1,
-    Snake = 2
+    Snake = 2,
+    Food = 3
 };
 struct FSettings
 {
@@ -60,17 +64,7 @@ struct FSettings
     float GameSpeed = 1.0f;
 };
 
-using TPositionPtr = TDoubleLinkedList<FPosition>::TDoubleLinkedListNode;
-
-class TSnakeList : public TDoubleLinkedList<FPosition>
-{
-public:
-    void MoveTail(TPositionPtr* Tail, TPositionPtr* Head, const FPosition& Pos)
-    {
-        // @todo: make real movement of tail node without remove/insert
-        RemoveNode(Tail);
-        InsertNode(Pos, Head->GetNextNode());
-    }
-};
+using TSnakeList = TDoubleLinkedList<FPosition>;
+using TPositionPtr = TSnakeList::TDoubleLinkedListNode;
 
 }  // namespace SnakeGame

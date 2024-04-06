@@ -16,7 +16,7 @@ ASG_SnakeLink::ASG_SnakeLink()
     LinkMesh->SetupAttachment(Origin);
 }
 
-void ASG_SnakeLink::UpdateColors(const FLinearColor& Color)
+void ASG_SnakeLink::UpdateColor(const FLinearColor& Color)
 {
     if (auto* LinkMaterial = LinkMesh->CreateAndSetMaterialInstanceDynamic(0))
     {

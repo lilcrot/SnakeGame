@@ -24,8 +24,14 @@ void Snake::Move(const FInput& Input)
         LastInput = Input;
     }
 
-    Links.MoveTail(Links.GetTail(), Links.GetHead(), Links.GetHead()->GetValue());
+    Links.GetTail()->GetValue() = Links.GetHead()->GetValue();
+    Links.MoveTailAfterHead();
     Links.GetHead()->GetValue() += FPosition(LastInput.x, LastInput.y);
+}
+
+void Snake::IncreaseLength()
+{
+    Links.AddTail(Links.GetTail()->GetValue());
 }
 
 const TSnakeList& Snake::GetLinks() const
@@ -33,12 +39,7 @@ const TSnakeList& Snake::GetLinks() const
     return Links;
 }
 
-FPosition Snake::GetHead() const
+FPosition Snake::GetHeadPosition() const
 {
     return Links.GetHead()->GetValue();
-}
-
-const TPositionPtr* Snake::GetBody() const
-{
-    return Links.GetHead()->GetNextNode();
 }

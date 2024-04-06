@@ -9,9 +9,11 @@
 #include "SG_GameMode.generated.h"
 
 class ASG_Grid;
+class ASG_Snake;
+class ASG_Food;
+
 class AExponentialHeightFog;
 class UDataTable;
-class ASG_Snake;
 class UInputAction;
 class UInputMappingContext;
 
@@ -38,11 +40,14 @@ protected:
     UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "0.01", ClampMax = "10"), Category = "Settings")
     float GameSpeed = 1.0f;
 
-    UPROPERTY(EditDefaultsOnly)
+    UPROPERTY(EditDefaultsOnly, Category = "Visual")
     TSubclassOf<ASG_Grid> GridVisualClass;
 
-    UPROPERTY(EditDefaultsOnly)
+    UPROPERTY(EditDefaultsOnly, Category = "Visual")
     TSubclassOf<ASG_Snake> SnakeVisualClass;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Visual")
+    TSubclassOf<ASG_Food> FoodVisualClass;
 
     UPROPERTY(EditDefaultsOnly, Category = "Visual")
     TObjectPtr<UDataTable> ColorsTable;
@@ -65,6 +70,9 @@ private:
 
     UPROPERTY()
     ASG_Snake* SnakeVisual;
+
+    UPROPERTY()
+    ASG_Food* FoodVisual;
 
     UFUNCTION(Exec, Category = "Console command")
     void NextColor();

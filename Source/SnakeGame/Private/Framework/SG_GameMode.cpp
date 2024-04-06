@@ -5,6 +5,7 @@
 #include "Core/Types.h"
 #include "World/SG_Grid.h"
 #include "World/SG_Snake.h"
+#include "World/SG_Food.h"
 #include "Framework/SG_Pawn.h"
 #include "Engine/ExponentialHeightFog.h"
 #include "Components/ExponentialHeightFogComponent.h"
@@ -31,22 +32,29 @@ void ASG_GameMode::StartPlay()
     UWorld* World = GetWorld();
     checkf(World, TEXT("World doesn't exist"));
 
-    const FTransform GridTransform = FTransform::Identity;
+    const FTransform GridOrigin = FTransform::Identity;
 
     /* init world grid */
     {
-        GridVisual = World->SpawnActorDeferred<ASG_Grid>(GridVisualClass, GridTransform);
+        GridVisual = World->SpawnActorDeferred<ASG_Grid>(GridVisualClass, GridOrigin);
         checkf(GridVisual, TEXT("GridVisual failed to spawn"));
         GridVisual->SetModel(CoreGame->GetGrid(), CellSize);
 
-        GridVisual->FinishSpawning(GridTransform);
+        GridVisual->FinishSpawning(GridOrigin);
     }
 
     /* init world snake */
     {
-        SnakeVisual = World->SpawnActorDeferred<ASG_Snake>(SnakeVisualClass, GridTransform);
+        SnakeVisual = World->SpawnActorDeferred<ASG_Snake>(SnakeVisualClass, GridOrigin);
         SnakeVisual->SetModel(CoreGame->GetSnake(), CellSize, CoreGame->GetGrid()->GetDimension());
-        SnakeVisual->FinishSpawning(GridTransform);
+        SnakeVisual->FinishSpawning(GridOrigin);
+    }
+
+    /* init world food */
+    {
+        FoodVisual = World->SpawnActorDeferred<ASG_Food>(FoodVisualClass, GridOrigin);
+        FoodVisual->SetModel(CoreGame->GetFood(), CellSize, CoreGame->GetGrid()->GetDimension());
+        FoodVisual->FinishSpawning(GridOrigin);
     }
 
     /* set pawn location fitting grid in viewport */
@@ -58,7 +66,7 @@ void ASG_GameMode::StartPlay()
         checkf(Pawn, TEXT("Pawn doesn't exist"));
         checkf(CoreGame->GetGrid().IsValid(), TEXT("GameGrid of the CoreGame doesn't exist"));
 
-        Pawn->UpdateLocation(CoreGame->GetGrid()->GetDimension(), CellSize, GridTransform);
+        Pawn->UpdateLocation(CoreGame->GetGrid()->GetDimension(), CellSize, GridOrigin);
     }
 
     /* update colors */
@@ -103,6 +111,7 @@ void ASG_GameMode::UpdateColors()
     {
         GridVisual->UpdateColors(*ColorSet);
         SnakeVisual->UpdateColors(*ColorSet);
+        FoodVisual->UpdateColor(ColorSet->FoodColor);
 
         // update scene ambient color via fog
         if (Fog && Fog->GetComponent())
@@ -157,6 +166,8 @@ void ASG_GameMode::OnGameReset(const FInputActionValue& Value)
 
         GridVisual->SetModel(CoreGame->GetGrid(), CellSize);
         SnakeVisual->SetModel(CoreGame->GetSnake(), CellSize, CoreGame->GetGrid()->GetDimension());
+        FoodVisual->SetModel(CoreGame->GetFood(), CellSize, CoreGame->GetGrid()->GetDimension());
+
         SnakeInput = SnakeGame::FInput::Default;
         NextColor();
     }

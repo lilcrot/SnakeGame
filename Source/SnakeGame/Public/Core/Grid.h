@@ -12,16 +12,25 @@ public:
     // @param InDim: it's implied that does NOT include walls
     Grid(const FDimension& InDim);
 
-    FDimension GetDimension() const;
-
-    void Update(const TPositionPtr* Links, ECellGridType CellType);
-    bool HitTest(const FPosition& Position, ECellGridType CellType) const;
-
     /**
      * Returns center position in grid (walls included)
      * @return Position center of grid
      */
     static FPosition GetCenter(const uint32 Width, const uint32 Height);
+
+    FDimension GetDimension() const;
+
+    void Update(const TPositionPtr* Links, ECellGridType CellType);
+    void Update(const FPosition& Position, ECellGridType CellType);
+
+    bool HitTest(const FPosition& Position, ECellGridType CellType) const;
+
+    /**
+     * Returns empty position by ref
+     * @param[out]  position on the grid
+     * @return bool  true if empty position exists (if position doesn't exist then snake body fills whole grid)
+     */
+    UE_NODISCARD bool GetRandomEmptyPosition(FPosition& Position) const;
 
 private:
     const FDimension Dim;
@@ -30,12 +39,17 @@ private:
     TMap<ECellGridType, TArray<uint32>> IndexesByTypeMap = {
         {ECellGridType::Snake, {}},  //
         {ECellGridType::Wall, {}},   //
+        {ECellGridType::Food, {}}    //
     };
 
     void InitWalls();
-    void FreeCellsByType(ECellGridType CellType);
 
-    uint32 PosToCellsIndex(const uint32 x, const uint32 y) const;
-    uint32 PosToCellsIndex(const FPosition& Position) const;
+    void FreeCellsByType(ECellGridType CellType);
+    void UpdateInternal(const FPosition& Position, ECellGridType CellType);
+
+
+    uint32 PosToIndex(const uint32 x, const uint32 y) const;
+    uint32 PosToIndex(const FPosition& Position) const;
+    FPosition IndexToPos(const uint32 Index) const;
 };
 }  // namespace SnakeGame
