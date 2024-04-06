@@ -17,6 +17,12 @@ public:
     void Update(const TPositionPtr* Links, ECellGridType CellType);
     bool HitTest(const FPosition& Position, ECellGridType CellType) const;
 
+    /**
+     * Returns center position in grid (walls included)
+     * @return Position center of grid
+     */
+    static FPosition GetCenter(const uint32 Width, const uint32 Height);
+
 private:
     const FDimension Dim;
     TArray<ECellGridType> Cells;

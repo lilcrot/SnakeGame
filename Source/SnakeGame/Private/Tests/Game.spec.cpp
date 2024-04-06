@@ -18,8 +18,6 @@ void FSnakeGame::Define()
             [this]()
             {
                 FSettings GameSettings;
-                GameSettings.SnakeConfiguration.StartPosition = SnakeGame::FPosition{
-                    GameSettings.GridDimension.Width / 2 + 1, GameSettings.GridDimension.Height / 2 + 1};  // @todo: proper way to handle +1
 
                 const auto CoreGame = MakeUnique<Game>(GameSettings);
                 TestTrueExpr(CoreGame->GetGrid().IsValid());

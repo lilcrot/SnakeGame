@@ -24,6 +24,8 @@ struct FPosition
         y += obj.y;
         return *this;
     }
+
+    static const FPosition Zero;
 };
 
 struct FInput
@@ -35,6 +37,8 @@ struct FInput
     {
         return (x == -rhs.x && x != 0) || (y == -rhs.y && y != 0);
     }
+
+    static const FInput Default;
 };
 
 enum class ECellGridType
@@ -45,12 +49,12 @@ enum class ECellGridType
 };
 struct FSettings
 {
-    FDimension GridDimension{40, 10};
+    FDimension GridDimension{10, 10};
 
     struct FSnake
     {
         uint32 DefaultSize = 4;
-        FPosition StartPosition{0, 0};
+        FPosition StartPosition{6, 6};  // Center of the GridDimension{10, 10} including walls
     } SnakeConfiguration;
 
     float GameSpeed = 1.0f;

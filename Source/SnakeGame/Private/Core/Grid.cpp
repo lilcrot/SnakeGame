@@ -90,3 +90,8 @@ uint32 Grid::PosToCellsIndex(const FPosition& Position) const
 {
     return PosToCellsIndex(Position.x, Position.y);
 }
+
+FPosition Grid::GetCenter(const uint32 Width, const uint32 Height)
+{
+    return FPosition(Width / 2 + 1, Height / 2 + 1);
+}

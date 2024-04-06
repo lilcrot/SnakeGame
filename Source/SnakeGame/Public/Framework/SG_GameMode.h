@@ -75,9 +75,9 @@ private:
 private:
     TUniquePtr<SnakeGame::Game> CoreGame;
 
-    uint32 ColorTableIndex{0};
+    uint32 ColorTableIndex = 0;
 
-    SnakeGame::FInput SnakeInput{1, 0};
+    SnakeGame::FInput SnakeInput = SnakeGame::FInput::Default;
 
     SnakeGame::FSettings MakeSettings() const;
 
