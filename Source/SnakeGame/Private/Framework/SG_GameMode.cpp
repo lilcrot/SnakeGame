@@ -14,6 +14,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogSnakeGameMode, All, All);
+
 ASG_GameMode::ASG_GameMode()
 {
     PrimaryActorTick.bCanEverTick = true;
@@ -27,6 +29,7 @@ void ASG_GameMode::StartPlay()
     {
         CoreGame = MakeUnique<SnakeGame::Game>(MakeSettings());
         checkf(CoreGame.IsValid(), TEXT("CoreGame isn't valid!"));
+        SubscribeOnGameEvents();
     }
 
     UWorld* World = GetWorld();
@@ -163,6 +166,7 @@ void ASG_GameMode::OnGameReset(const FInputActionValue& Value)
     {
         CoreGame.Reset(new SnakeGame::Game(MakeSettings()));
         checkf(CoreGame.IsValid(), TEXT("CoreGame isn't valid!"));
+        SubscribeOnGameEvents();
 
         GridVisual->SetModel(CoreGame->GetGrid(), CellSize);
         SnakeVisual->SetModel(CoreGame->GetSnake(), CellSize, CoreGame->GetGrid()->GetDimension());
@@ -192,4 +196,38 @@ SnakeGame::FSettings ASG_GameMode::MakeSettings() const
     GS.SnakeConfiguration.StartPosition = SnakeGame::Grid::GetCenter(GridDimension.X, GridDimension.Y);
 
     return GS;
+}
+
+void ASG_GameMode::SubscribeOnGameEvents()
+{
+    using namespace SnakeGame;
+
+    CoreGame->SubscribeOnGameplayEvent(
+        [&](const EGameplayEvent& Event)
+        {
+            switch (Event)
+            {
+                case EGameplayEvent::GameOver:
+                {
+                    UE_LOG(LogSnakeGameMode, Display, TEXT("-------------- GAME OVER --------------"));
+                    UE_LOG(LogSnakeGameMode, Display, TEXT("-------------- SCORE: %i --------------"), CoreGame->GetScore());
+                    SnakeVisual->PlayExplodeEffect();
+                    break;
+                }
+
+                case EGameplayEvent::GameCompleted:
+                {
+                    UE_LOG(LogSnakeGameMode, Display, TEXT("-------------- GAME COMPLETED --------------"));
+                    UE_LOG(LogSnakeGameMode, Display, TEXT("-------------- SCORE: %i --------------"), CoreGame->GetScore());
+                    break;
+                }
+
+                case EGameplayEvent::FoodTaken:
+                {
+                    UE_LOG(LogSnakeGameMode, Display, TEXT("-------------- FOOD TAKEN --------------"));
+                    FoodVisual->PlayExplodeEffect();
+                    break;
+                }
+            }
+        });
 }
