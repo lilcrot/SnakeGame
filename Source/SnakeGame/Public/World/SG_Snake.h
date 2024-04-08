@@ -25,6 +25,7 @@ public:
 
     void SetModel(const TSharedPtr<SnakeGame::Snake>& InSnake, uint32 InCellSize, const SnakeGame::FDimension& Dimension);
     void UpdateColors(const FSnakeColors& Colors);
+    void PlayExplodeEffect();
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)

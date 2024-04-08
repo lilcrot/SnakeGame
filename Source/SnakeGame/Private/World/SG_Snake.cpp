@@ -3,7 +3,7 @@
 #include "World/SG_Snake.h"
 #include "World/SG_SnakeLink.h"
 #include "World/SG_WorldUtils.h"
-#include "Core/Snake.h" 
+#include "Core/Snake.h"
 #include "World/SG_WorldTypes.h"
 #include "Core/Types.h"
 
@@ -88,4 +88,12 @@ ASG_SnakeLink* ASG_Snake::SpawnSnakeLink(UClass* Class, const SnakeGame::FPositi
     SnakeLinks.Add(LinkActor);
 
     return LinkActor;
+}
+
+void ASG_Snake::PlayExplodeEffect()
+{
+    for (auto* LinkActor : SnakeLinks)
+    {
+        LinkActor->PlayExplodeEffect();
+    }
 }

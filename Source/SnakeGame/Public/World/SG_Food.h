@@ -13,6 +13,7 @@ class Food;
 }
 
 class UStaticMeshComponent;
+class UNiagaraSystem;
 
 UCLASS()
 class SNAKEGAME_API ASG_Food : public AActor
@@ -27,6 +28,8 @@ public:
 
     void UpdateColor(const FLinearColor& Color);
 
+    void PlayExplodeEffect();
+
 protected:
     UPROPERTY(VisibleAnywhere)
     USceneComponent* Origin;
@@ -34,8 +37,15 @@ protected:
     UPROPERTY(VisibleAnywhere)
     UStaticMeshComponent* FoodMesh;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Visual")
+    TObjectPtr<UNiagaraSystem> ExplosionEffect;
+
 private:
     TWeakPtr<SnakeGame::Food> Food;
     uint32 CellSize;
     SnakeGame::FDimension Dim;
+
+    FLinearColor FoodColor;
+
+    FVector GetFoodWorldLocation() const;
 };

@@ -13,8 +13,8 @@ constexpr int32 NumWallsInLine = 2;
 
 }  // namespace
 
-Grid::Grid(const FDimension& InDim)  //
-    : Dim(FDimension{InDim.Width + NumWallsInLine, InDim.Height + NumWallsInLine})
+Grid::Grid(const FDimension& InDim, const IPositionRandomizerPtr& Randomizer)
+    : GridPositionRandomizer(Randomizer), Dim(FDimension{InDim.Width + NumWallsInLine, InDim.Height + NumWallsInLine})
 {
     /* Dimension ( 4 * 3 without walls )
      * * * * * *
@@ -64,28 +64,8 @@ bool Grid::HitTest(const FPosition& Position, ECellGridType CellType) const
 
 UE_NODISCARD bool Grid::GetRandomEmptyPosition(FPosition& Position) const
 {
-    const auto GridSize = Dim.Width * Dim.Height;
-    const uint32 Index = FMath::RandRange(0, GridSize - 1);
-
-    for (uint32 i = Index; i < GridSize; ++i)
-    {
-        if (Cells[i] == ECellGridType::Empty)
-        {
-            Position = IndexToPos(i);
-            return true;
-        }
-    }
-
-    for (uint32 i = 0; i < Index; ++i)
-    {
-        if (Cells[i] == ECellGridType::Empty)
-        {
-            Position = IndexToPos(i);
-            return true;
-        }
-    }
-
-    return false;
+    if (!GridPositionRandomizer) return false;
+    return GridPositionRandomizer->GeneratePosition(Dim, Cells, Position);
 }
 
 void Grid::InitWalls()
@@ -124,11 +104,6 @@ uint32 Grid::PosToIndex(const uint32 x, const uint32 y) const
 uint32 Grid::PosToIndex(const FPosition& Position) const
 {
     return PosToIndex(Position.x, Position.y);
-}
-
-FPosition Grid::IndexToPos(const uint32 Index) const
-{
-    return FPosition(Index % Dim.Width, Index / Dim.Width);
 }
 
 FPosition Grid::GetCenter(const uint32 Width, const uint32 Height)

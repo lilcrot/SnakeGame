@@ -3,6 +3,7 @@
 
 #include "CoreMinimal.h"
 #include "Types.h"
+#include "Utils.h"
 
 namespace SnakeGame
 {
@@ -10,7 +11,7 @@ class Grid
 {
 public:
     // @param InDim: it's implied that does NOT include walls
-    Grid(const FDimension& InDim);
+    Grid(const FDimension& InDim, const IPositionRandomizerPtr& Randomizer = MakeShared<PositionRandomizer>());
 
     /**
      * Returns center position in grid (walls included)
@@ -33,6 +34,8 @@ public:
     UE_NODISCARD bool GetRandomEmptyPosition(FPosition& Position) const;
 
 private:
+    TSharedPtr<IPositionRandomizer> GridPositionRandomizer;
+
     const FDimension Dim;
     TArray<ECellGridType> Cells;
 
@@ -50,6 +53,5 @@ private:
 
     uint32 PosToIndex(const uint32 x, const uint32 y) const;
     uint32 PosToIndex(const FPosition& Position) const;
-    FPosition IndexToPos(const uint32 Index) const;
 };
 }  // namespace SnakeGame

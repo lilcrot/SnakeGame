@@ -8,10 +8,10 @@ DEFINE_LOG_CATEGORY_STATIC(LogGame, All, All);
 
 using namespace SnakeGame;
 
-Game::Game(const FSettings& SettingsIn)  //
+Game::Game(const FSettings& SettingsIn, const IPositionRandomizerPtr& Randomizer)  //
     : Settings(SettingsIn)
 {
-    GameGrid = MakeShared<Grid>(Settings.GridDimension);
+    GameGrid = MakeShared<Grid>(Settings.GridDimension, Randomizer);
 
     checkf(GameGrid->GetDimension().Width / 2 >= Settings.SnakeConfiguration.DefaultSize,                        //
         TEXT("Snake initial length [%i] doesn't fit grid width [%i]"), Settings.SnakeConfiguration.DefaultSize,  //
@@ -46,8 +46,8 @@ void Game::Update(float DeltaSeconds, const FInput& Input)
     if (IsDied())
     {
         bIsGameOver = true;
-        UE_LOG(LogGame, Display, TEXT("-------------- GAME OVER --------------"));
-        UE_LOG(LogGame, Display, TEXT("-------------- SCORE: %i --------------"), Score);
+        DispatchEvent(EGameplayEvent::GameOver);
+
         return;
     }
 
@@ -55,6 +55,7 @@ void Game::Update(float DeltaSeconds, const FInput& Input)
     {
         ++Score;
         GameSnake->IncreaseLength();
+        DispatchEvent(EGameplayEvent::FoodTaken);
         GenerateFood();
     }
 
@@ -92,12 +93,29 @@ void Game::GenerateFood()
     else
     {
         bIsGameOver = true;
-        UE_LOG(LogGame, Display, TEXT("-------------- GAME COMPLETED --------------"));
-        UE_LOG(LogGame, Display, TEXT("-------------- SCORE: %i --------------"), Score);
+        DispatchEvent(EGameplayEvent::GameCompleted);
     }
 }
 
 bool Game::IsFoodTaken() const
 {
     return GameGrid->HitTest(GameSnake->GetHeadPosition(), ECellGridType::Food);
+}
+
+void Game::SubscribeOnGameplayEvent(const GameplayEventCallback Callback)
+{
+    GameEventCallback = Callback;
+}
+
+void Game::DispatchEvent(const EGameplayEvent& Event)
+{
+    if (GameEventCallback)
+    {
+        GameEventCallback(Event);
+    }
+}
+
+uint32 Game::GetScore() const
+{
+    return Score;
 }
