@@ -69,6 +69,8 @@ void Game::UpdateGrid()
 
 bool Game::CanUpdateTime(float DeltaSeconds)
 {
+    GameTime += DeltaSeconds;
+
     MoveSeconds += DeltaSeconds;
     if (MoveSeconds < Settings.GameSpeed) return false;
 
@@ -104,18 +106,26 @@ bool Game::IsFoodTaken() const
 
 void Game::SubscribeOnGameplayEvent(const GameplayEventCallback Callback)
 {
-    GameEventCallback = Callback;
+    GameEventCallbacks.Add(Callback);
 }
 
 void Game::DispatchEvent(const EGameplayEvent& Event)
 {
-    if (GameEventCallback)
+    for (const auto& Callback : GameEventCallbacks)
     {
-        GameEventCallback(Event);
+        if (Callback)
+        {
+            Callback(Event);
+        }
     }
 }
 
 uint32 Game::GetScore() const
 {
     return Score;
+}
+
+float Game::GetGameTime() const
+{
+    return GameTime;
 }

@@ -32,7 +32,6 @@ public:
         Positions = InPositions;
         Index = 0;
     }
-    virtual ~MockPositionRandomizer(){};
 
 private:
     TArray<FPosition> Positions;
