@@ -47,9 +47,9 @@ struct FInput
 enum class ECellGridType
 {
     Empty = 0,
-    Wall = 1,
-    Snake = 2,
-    Food = 3
+    Wall,
+    Snake,
+    Food
 };
 struct FSettings
 {
@@ -70,8 +70,8 @@ using TPositionPtr = TSnakeList::TDoubleLinkedListNode;
 enum class EGameplayEvent
 {
     GameOver = 0,
-    GameCompleted = 1,
-    FoodTaken = 2
+    GameCompleted,
+    FoodTaken
 };
 
 using GameplayEventCallback = TFunction<void(EGameplayEvent)>;
