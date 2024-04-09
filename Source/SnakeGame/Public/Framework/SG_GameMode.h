@@ -11,6 +11,7 @@
 class ASG_Grid;
 class ASG_Snake;
 class ASG_Food;
+class ASG_HUD;
 
 class AExponentialHeightFog;
 class UDataTable;
@@ -66,22 +67,25 @@ protected:
 
 private:
     UPROPERTY()
-    ASG_Grid* GridVisual;
+    TObjectPtr<ASG_Grid> GridVisual;
 
     UPROPERTY()
-    ASG_Snake* SnakeVisual;
+    TObjectPtr<ASG_Snake> SnakeVisual;
 
     UPROPERTY()
-    ASG_Food* FoodVisual;
+    TObjectPtr<ASG_Food> FoodVisual;
+
+    UPROPERTY()
+    TObjectPtr<AExponentialHeightFog> Fog;
+
+    UPROPERTY()
+    TObjectPtr<ASG_HUD> HUD;
 
     UFUNCTION(Exec, Category = "Console command")
     void NextColor();
 
-    UPROPERTY()
-    AExponentialHeightFog* Fog;
-
 private:
-    TUniquePtr<SnakeGame::Game> CoreGame;
+    TSharedPtr<SnakeGame::Game> CoreGame;
 
     uint32 ColorTableIndex = 0;
 

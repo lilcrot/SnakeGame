@@ -10,6 +10,7 @@ class IPositionRandomizer
 {
 public:
     virtual bool GeneratePosition(const FDimension& Dim, const TArray<ECellGridType>& Cells, FPosition& Position) const = 0;
+    virtual ~IPositionRandomizer() = default;
 };
 
 class PositionRandomizer : public IPositionRandomizer

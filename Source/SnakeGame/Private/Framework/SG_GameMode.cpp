@@ -13,6 +13,8 @@
 #include "World/SG_WorldTypes.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "UI/SG_HUD.h"
+#include "World/SG_WorldUtils.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogSnakeGameMode, All, All);
 
@@ -27,13 +29,16 @@ void ASG_GameMode::StartPlay()
 
     /* init core game */
     {
-        CoreGame = MakeUnique<SnakeGame::Game>(MakeSettings());
+        CoreGame = MakeShared<SnakeGame::Game>(MakeSettings());
         checkf(CoreGame.IsValid(), TEXT("CoreGame isn't valid!"));
         SubscribeOnGameEvents();
     }
 
     UWorld* World = GetWorld();
     checkf(World, TEXT("World doesn't exist"));
+
+    const auto* PlayerController = World->GetFirstPlayerController();
+    checkf(PlayerController, TEXT("FirstPlayerController doesn't exist"));
 
     const FTransform GridOrigin = FTransform::Identity;
 
@@ -62,8 +67,6 @@ void ASG_GameMode::StartPlay()
 
     /* set pawn location fitting grid in viewport */
     {
-        const auto* PlayerController = World->GetFirstPlayerController();
-        checkf(PlayerController, TEXT("FirstPlayerController doesn't exist"));
 
         auto* Pawn = Cast<ASG_Pawn>(PlayerController->GetPawn());
         checkf(Pawn, TEXT("Pawn doesn't exist"));
@@ -85,6 +88,15 @@ void ASG_GameMode::StartPlay()
     }
 
     SetupInput();
+
+    {
+        HUD = Cast<ASG_HUD>(PlayerController->GetHUD());
+        checkf(HUD, TEXT("SH_HUD isn't valid"));
+
+        HUD->SetModel(CoreGame);
+        const FString ResetGameKeyName = SnakeGame::WorldUtils::FindActionKeyName(InputMapping, ResetGameInputAction);
+        HUD->SetInputKeyNames(ResetGameKeyName);
+    }
 }
 
 void ASG_GameMode::NextColor()
@@ -164,13 +176,14 @@ void ASG_GameMode::OnGameReset(const FInputActionValue& Value)
 {
     if (const bool bIsPressed = Value.Get<bool>())
     {
-        CoreGame.Reset(new SnakeGame::Game(MakeSettings()));
+        CoreGame = MakeShared<SnakeGame::Game>(MakeSettings());
         checkf(CoreGame.IsValid(), TEXT("CoreGame isn't valid!"));
         SubscribeOnGameEvents();
 
         GridVisual->SetModel(CoreGame->GetGrid(), CellSize);
         SnakeVisual->SetModel(CoreGame->GetSnake(), CellSize, CoreGame->GetGrid()->GetDimension());
         FoodVisual->SetModel(CoreGame->GetFood(), CellSize, CoreGame->GetGrid()->GetDimension());
+        HUD->SetModel(CoreGame);
 
         SnakeInput = SnakeGame::FInput::Default;
         NextColor();
@@ -211,7 +224,10 @@ void ASG_GameMode::SubscribeOnGameEvents()
                 {
                     UE_LOG(LogSnakeGameMode, Display, TEXT("-------------- GAME OVER --------------"));
                     UE_LOG(LogSnakeGameMode, Display, TEXT("-------------- SCORE: %i --------------"), CoreGame->GetScore());
+
                     SnakeVisual->PlayExplodeEffect();
+                    FoodVisual->SetActorHiddenInGame(true);
+
                     break;
                 }
 

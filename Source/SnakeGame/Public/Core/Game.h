@@ -23,6 +23,7 @@ public:
     void Update(float DeltaSeconds, const FInput& Input);
 
     uint32 GetScore() const;
+    float GetGameTime() const;
 
     void SubscribeOnGameplayEvent(const GameplayEventCallback Callback);
 
@@ -33,11 +34,12 @@ private:
     TSharedPtr<Snake> GameSnake;
     TSharedPtr<Food> GameFood;
 
+    float GameTime = 0.0f;
     float MoveSeconds = 0.0f;
     bool bIsGameOver = false;
     uint32 Score = 0;
-    GameplayEventCallback GameEventCallback;
 
+    TArray<GameplayEventCallback> GameEventCallbacks;
 
     void UpdateGrid();
     bool CanUpdateTime(float DeltaSeconds);
