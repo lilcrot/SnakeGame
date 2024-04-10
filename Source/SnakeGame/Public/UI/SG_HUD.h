@@ -12,8 +12,8 @@ UENUM()
 enum class EUIGameState : uint8
 {
     GameInProgress = 0,
-    GameOver = 1,
-    GameCompleted = 2
+    GameOver,
+    GameCompleted
 };
 
 namespace SnakeGame
