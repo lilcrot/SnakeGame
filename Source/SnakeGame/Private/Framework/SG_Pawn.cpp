@@ -16,7 +16,6 @@ double VerticalFOV(const double HorFOVDegrees, const double ViewportAspectHW)
 }
 constexpr double GridMargin = 2.0;
 
-
 }  // namespace
 
 ASG_Pawn::ASG_Pawn()
@@ -46,9 +45,7 @@ void ASG_Pawn::UpdateLocation(const SnakeGame::FDimension& InDim, const int32 In
     Viewport->ViewportResizedEvent.Remove(ResizeHandle);
     ResizeHandle = Viewport->ViewportResizedEvent.AddUObject(this, &ASG_Pawn::OnViewportResized);
 
-#if WITH_EDITOR
     OnViewportResized(Viewport, 0);
-#endif
 }
 
 void ASG_Pawn::OnViewportResized(FViewport* Viewport, uint32 Val)

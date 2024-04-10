@@ -52,5 +52,23 @@ public:
 
         return FoundAcionKeyMapping ? FoundAcionKeyMapping->Key.GetDisplayName().ToString() : FString{};
     }
+    static void SetUIInput(UWorld* World, const bool bEnable)
+    {
+        if (!World) return;
+
+        auto* PlayerController = World->GetFirstPlayerController();
+        if (PlayerController)
+        {
+            PlayerController->SetShowMouseCursor(bEnable);
+            if (bEnable)
+            {
+                PlayerController->SetInputMode(FInputModeGameAndUI().SetHideCursorDuringCapture(false));
+            }
+            else
+            {
+                PlayerController->SetInputMode(FInputModeGameOnly());
+            }
+        }
+    }
 };
 }  // namespace SnakeGame

@@ -15,7 +15,7 @@ void FSnakeGrid::Define()
     using namespace SnakeGame;
 
     Describe("Core.Grid", [this]() {  //
-        It("DimsMightIncludeWalls",
+        It("DimensionShouldIncludeWalls",
             [this]()
             {
                 const Grid CoreGrid(FDimension{12, 10});
@@ -23,10 +23,10 @@ void FSnakeGrid::Define()
                 TestTrueExpr(CoreGrid.GetDimension().Height == 12);
             });
 
-        It("CenterMightBeCalculatedCorrectly",  //
+        It("CenterShouldBeCalculatedCorrectly",  //
             [this]() { TestTrueExpr(Grid::GetCenter(13, 11) == FPosition(7, 6)); });
 
-        It("HitTest.FPositionMightBeUpdatedCorrectly.Food",
+        It("HitTest.PositionShouldBeUpdatedCorrectly.Food",
             [this]()
             {
                 Grid CoreGrid(FDimension{12, 10});
@@ -35,7 +35,7 @@ void FSnakeGrid::Define()
                 TestTrueExpr(CoreGrid.HitTest(FPosition(5, 5), ECellGridType::Food));
             });
 
-        It("HitTest.FPositionMightBeUpdatedCorrectly.Snake",
+        It("HitTest.PositionShouldBeUpdatedCorrectly.Snake",
             [this]()
             {
                 const FDimension Dim = FDimension{12, 10};
@@ -60,7 +60,7 @@ void FSnakeGrid::Define()
                 TestTrueExpr(CoreGrid.HitTest(FPosition(4, 6), ECellGridType::Snake));
             });
 
-        It("HitTest.CellReleaseMightBeCorrect",
+        It("HitTest.CellReleaseShouldBeCorrect",
             [this]()
             {
                 Grid CoreGrid(FDimension{12, 10});
@@ -72,7 +72,7 @@ void FSnakeGrid::Define()
                 TestTrueExpr(CoreGrid.HitTest(FPosition(5, 6), ECellGridType::Food));
             });
 
-        It("EmptyCellMightBeFound",
+        It("EmptyCellShouldBeFound",
             [this]()
             {
                 Grid CoreGrid(FDimension{2, 2});

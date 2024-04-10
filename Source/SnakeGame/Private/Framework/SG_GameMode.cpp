@@ -15,6 +15,7 @@
 #include "EnhancedInputComponent.h"
 #include "UI/SG_HUD.h"
 #include "World/SG_WorldUtils.h"
+#include "Framework/SG_GameUserSettings.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogSnakeGameMode, All, All);
 
@@ -89,13 +90,16 @@ void ASG_GameMode::StartPlay()
 
     SetupInput();
 
+    /* init HUD */
     {
         HUD = Cast<ASG_HUD>(PlayerController->GetHUD());
-        checkf(HUD, TEXT("SH_HUD isn't valid"));
+        checkf(HUD, TEXT("SG_HUD isn't valid"));
 
         HUD->SetModel(CoreGame);
         const FString ResetGameKeyName = SnakeGame::WorldUtils::FindActionKeyName(InputMapping, ResetGameInputAction);
         HUD->SetInputKeyNames(ResetGameKeyName);
+
+        SnakeGame::WorldUtils::SetUIInput(GetWorld(), false);
     }
 }
 
@@ -105,6 +109,8 @@ void ASG_GameMode::NextColor()
     {
         ColorTableIndex = (ColorTableIndex + 1) % ColorsTable->GetRowNames().Num();
         UpdateColors();
+
+        SnakeGame::WorldUtils::SetUIInput(GetWorld(), false);
     }
 }
 
@@ -203,10 +209,23 @@ void ASG_GameMode::Tick(float DeltaSeconds)
 SnakeGame::FSettings ASG_GameMode::MakeSettings() const
 {
     SnakeGame::FSettings GS;
-    GS.GridDimension = SnakeGame::FDimension{GridDimension.X, GridDimension.Y};
-    GS.GameSpeed = GameSpeed;
+
+#if WITH_EDITOR
+    if (bOverrideUserSettings)
+    {
+        GS.GridDimension = SnakeGame::FDimension{GridDimension.X, GridDimension.Y};
+        GS.GameSpeed = GameSpeed;
+    }
+    else
+#endif
+        if (const auto* UserSettings = USG_GameUserSettings::Get())
+    {
+        GS.GridDimension = UserSettings->GetGridSize();
+        GS.GameSpeed = UserSettings->GetGameSpeed();
+    }
+
     GS.SnakeConfiguration.DefaultSize = SnakeDefaultSize;
-    GS.SnakeConfiguration.StartPosition = SnakeGame::Grid::GetCenter(GridDimension.X, GridDimension.Y);
+    GS.SnakeConfiguration.StartPosition = SnakeGame::Grid::GetCenter(GS.GridDimension.Width, GS.GridDimension.Height);
 
     return GS;
 }
@@ -222,25 +241,20 @@ void ASG_GameMode::SubscribeOnGameEvents()
             {
                 case EGameplayEvent::GameOver:
                 {
-                    UE_LOG(LogSnakeGameMode, Display, TEXT("-------------- GAME OVER --------------"));
-                    UE_LOG(LogSnakeGameMode, Display, TEXT("-------------- SCORE: %i --------------"), CoreGame->GetScore());
-
                     SnakeVisual->PlayExplodeEffect();
                     FoodVisual->SetActorHiddenInGame(true);
+                    WorldUtils::SetUIInput(GetWorld(), true);
 
                     break;
                 }
 
                 case EGameplayEvent::GameCompleted:
                 {
-                    UE_LOG(LogSnakeGameMode, Display, TEXT("-------------- GAME COMPLETED --------------"));
-                    UE_LOG(LogSnakeGameMode, Display, TEXT("-------------- SCORE: %i --------------"), CoreGame->GetScore());
                     break;
                 }
 
                 case EGameplayEvent::FoodTaken:
                 {
-                    UE_LOG(LogSnakeGameMode, Display, TEXT("-------------- FOOD TAKEN --------------"));
                     FoodVisual->PlayExplodeEffect();
                     break;
                 }

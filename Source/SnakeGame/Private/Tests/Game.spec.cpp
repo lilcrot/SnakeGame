@@ -69,11 +69,11 @@ void FSnakeGame::Define()
                 const int32 Moves = FMath::RoundToInt(GS.GridDimension.Width / 2.0f) - 1;
                 for (int32 i = 0; i < Moves; ++i)
                 {
-                    CoreGame->Update(1.0f, FInput::Default);
+                    CoreGame->Update(GS.GameSpeed, FInput::Default);
                     TestTrueExpr(!bIsGameOver);
                 }
 
-                CoreGame->Update(1.0f, FInput::Default);
+                CoreGame->Update(GS.GameSpeed, FInput::Default);
                 TestTrueExpr(bIsGameOver);
             });
 
@@ -104,15 +104,15 @@ void FSnakeGame::Define()
                 TestTrueExpr(CoreGame->GetScore() == 0);
                 TestTrueExpr(Score == 0);
 
-                CoreGame->Update(1.0f, FInput::Default);
+                CoreGame->Update(GS.GameSpeed, FInput::Default);
                 TestTrueExpr(CoreGame->GetScore() == 1);
                 TestTrueExpr(Score == 1);
 
-                CoreGame->Update(1.0f, FInput::Default);
+                CoreGame->Update(GS.GameSpeed, FInput::Default);
                 TestTrueExpr(CoreGame->GetScore() == 1);
                 TestTrueExpr(Score == 1);
 
-                CoreGame->Update(1.0f, FInput::Default);
+                CoreGame->Update(GS.GameSpeed, FInput::Default);
                 TestTrueExpr(CoreGame->GetScore() == 2);
                 TestTrueExpr(Score == 2);
             });

@@ -29,17 +29,25 @@ public:
     virtual void Tick(float DeltaSeconds) override;
 
 protected:
-    UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "10", ClampMax = "100"), Category = "Settings")
+    UPROPERTY(EditDefaultsOnly, Category = "Settings")
+    bool bOverrideUserSettings = false;
+
+    UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "10", ClampMax = "100", EditCondition = "bOverrideUserSettings", EditConditionHides),
+        Category = "Settings")
     FUintPoint GridDimension{10, 10};
 
-    UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "10", ClampMax = "100"), Category = "Settings")
+    UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "10", ClampMax = "100", EditCondition = "bOverrideUserSettings", EditConditionHides),
+        Category = "Settings")
     uint32 CellSize = 10;
 
-    UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "4", ClampMax = "10"), Category = "Settings")
+    UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "4", ClampMax = "10", EditCondition = "bOverrideUserSettings", EditConditionHides),
+        Category = "Settings")
     uint32 SnakeDefaultSize = 5;
 
-    UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "0.01", ClampMax = "10"), Category = "Settings")
+    UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "0.01", ClampMax = "10", EditCondition = "bOverrideUserSettings", EditConditionHides),
+        Category = "Settings")
     float GameSpeed = 1.0f;
+
 
     UPROPERTY(EditDefaultsOnly, Category = "Visual")
     TSubclassOf<ASG_Grid> GridVisualClass;
