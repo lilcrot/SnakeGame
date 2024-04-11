@@ -54,7 +54,7 @@ void ASG_Food::PlayExplodeEffect()
     auto* NiagaraSystem = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ExplosionEffect, GetFoodWorldLocation());
     if (NiagaraSystem)
     {
-        NiagaraSystem->SetNiagaraVariableLinearColor("Color", FoodColor);
+        NiagaraSystem->SetVariableLinearColor("Color", FoodColor);
     }
 }
 

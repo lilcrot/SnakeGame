@@ -12,7 +12,10 @@ public:
     Snake(const FSettings::FSnake& Settings);
 
     const TSnakeList& GetLinks() const;
+
     FPosition GetHeadPosition() const;
+    FPosition GetTailPosition() const;
+
 
     void Move(const FInput& Input);
 

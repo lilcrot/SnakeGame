@@ -120,7 +120,7 @@ void FSnakeFramework::Define()
 
                         for (const auto& [Name, GridSizeType, GridSize] : TestData)
                         {
-                            if (GridSize.Width == PrevDimension.Width && GridSize.Height == PrevDimension.Height)
+                            if (GridSize == PrevDimension)
                             {
                                 PrevGridSize = GridSizeType;
                             }

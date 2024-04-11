@@ -10,6 +10,8 @@ struct FDimension
 {
     uint32 Width = 0;
     uint32 Height = 0;
+
+    bool operator==(const FDimension& rhs) const { return Width == rhs.Width && Height == rhs.Height; }
 };
 
 struct FPosition
@@ -26,7 +28,7 @@ struct FPosition
         y += rhs.y;
         return *this;
     }
-    bool operator==(const FPosition& rhs) { return x == rhs.x && y == rhs.y; }
+    bool operator==(const FPosition& rhs) const { return x == rhs.x && y == rhs.y; }
 
     static const FPosition Zero;
 };

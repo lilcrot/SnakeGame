@@ -33,7 +33,7 @@ FDimension Grid::GetDimension() const
     return Dim;
 }
 
-void Grid::Update(const TPositionPtr* Links, ECellGridType CellType)
+void Grid::Update(const TPositionPtr* Links, const ECellGridType& CellType)
 {
     FreeCellsByType(CellType);
 
@@ -44,20 +44,20 @@ void Grid::Update(const TPositionPtr* Links, ECellGridType CellType)
         Link = Link->GetNextNode();
     }
 }
-void Grid::Update(const FPosition& Position, ECellGridType CellType)
+void Grid::Update(const FPosition& Position, const ECellGridType& CellType)
 {
     FreeCellsByType(CellType);
     UpdateInternal(Position, CellType);
 }
 
-void Grid::UpdateInternal(const FPosition& Position, ECellGridType CellType)
+void Grid::UpdateInternal(const FPosition& Position, const ECellGridType& CellType)
 {
     const uint32 Index = PosToIndex(Position);
     Cells[Index] = CellType;
     IndexesByTypeMap[CellType].Add(Index);
 }
 
-bool Grid::HitTest(const FPosition& Position, ECellGridType CellType) const
+bool Grid::HitTest(const FPosition& Position, const ECellGridType& CellType) const
 {
     return Cells[PosToIndex(Position)] == CellType;
 }
@@ -85,7 +85,7 @@ void Grid::InitWalls()
     }
 }
 
-void Grid::FreeCellsByType(ECellGridType CellType)
+void Grid::FreeCellsByType(const ECellGridType& CellType)
 {
     if (!IndexesByTypeMap.Contains(CellType)) return;
 

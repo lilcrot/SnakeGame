@@ -43,3 +43,8 @@ FPosition Snake::GetHeadPosition() const
 {
     return Links.GetHead()->GetValue();
 }
+
+FPosition Snake::GetTailPosition() const
+{
+    return Links.GetTail()->GetValue();
+}

@@ -41,9 +41,13 @@ void Game::Update(float DeltaSeconds, const FInput& Input)
 {
     if (bIsGameOver || !CanUpdateTime(DeltaSeconds)) return;
 
+
+    // TODO: Improve HitTest to SnakeHead. Add to enum SnakeHead and update code...
+    // then we can UpdateGrid immediately after update move for GameSnake
+    const auto PrevTailPosition = GameSnake->GetTailPosition();
     GameSnake->Move(Input);
 
-    if (IsDied())
+    if (IsDied(PrevTailPosition))
     {
         bIsGameOver = true;
         DispatchEvent(EGameplayEvent::GameOver);
@@ -78,10 +82,12 @@ bool Game::CanUpdateTime(float DeltaSeconds)
     return true;
 }
 
-bool Game::IsDied() const
+bool Game::IsDied(const FPosition& PrevTailPosition) const
 {
-    return GameGrid->HitTest(GameSnake->GetHeadPosition(), ECellGridType::Wall) ||  //
-           GameGrid->HitTest(GameSnake->GetHeadPosition(), ECellGridType::Snake);
+    if (GameGrid->HitTest(GameSnake->GetHeadPosition(), ECellGridType::Wall)) return true;
+    if (GameSnake->GetHeadPosition() == PrevTailPosition) return false;  // corner case
+
+    return GameGrid->HitTest(GameSnake->GetHeadPosition(), ECellGridType::Snake);
 }
 
 void Game::GenerateFood()

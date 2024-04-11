@@ -21,10 +21,10 @@ public:
 
     FDimension GetDimension() const;
 
-    void Update(const TPositionPtr* Links, ECellGridType CellType);
-    void Update(const FPosition& Position, ECellGridType CellType);
+    void Update(const TPositionPtr* Links, const ECellGridType& CellType);
+    void Update(const FPosition& Position, const ECellGridType& CellType);
 
-    bool HitTest(const FPosition& Position, ECellGridType CellType) const;
+    bool HitTest(const FPosition& Position, const ECellGridType& CellType) const;
 
     /**
      * Returns empty position by ref
@@ -47,9 +47,8 @@ private:
 
     void InitWalls();
 
-    void FreeCellsByType(ECellGridType CellType);
-    void UpdateInternal(const FPosition& Position, ECellGridType CellType);
-
+    void FreeCellsByType(const ECellGridType& CellType);
+    void UpdateInternal(const FPosition& Position, const ECellGridType& CellType);
 
     uint32 PosToIndex(const uint32 x, const uint32 y) const;
     uint32 PosToIndex(const FPosition& Position) const;
