@@ -117,6 +117,39 @@ void FSnakeGame::Define()
                 TestTrueExpr(Score == 2);
             });
     });
+
+    Describe("Core.Game", [this]() {  //
+        It("SnakeShouldMoveCorrectlyNextToItsTail",
+            [this]()
+            {
+                auto Randomizer = MakeShared<MockPositionRandomizer>();
+                TArray<FPosition> Positions;
+                Positions.Init(FPosition{1, 1}, 4);
+                Randomizer->SetPositions(Positions);
+
+                GS.GridDimension = FDimension{10, 10};
+                GS.SnakeConfiguration.DefaultSize = 4;
+                GS.SnakeConfiguration.StartPosition = Grid::GetCenter(GS.GridDimension.Width, GS.GridDimension.Height);
+                GS.GameSpeed = 1.0f;
+                CoreGame = MakeUnique<Game>(GS, Randomizer);
+
+                bool bIsGameOver = false;
+                CoreGame->SubscribeOnGameplayEvent(
+                    [&](const EGameplayEvent& Event)
+                    {
+                        if (Event == EGameplayEvent::GameOver)
+                        {
+                            bIsGameOver = true;
+                        }
+                    });
+
+                CoreGame->Update(GS.GameSpeed, {0, 1});   // move down
+                CoreGame->Update(GS.GameSpeed, {-1, 0});  // move left
+                CoreGame->Update(GS.GameSpeed, {0, -1});  // move up
+
+                TestTrue("The snake shouldn't bite its tail", !bIsGameOver); 
+            });
+    });
 }
 
 #endif

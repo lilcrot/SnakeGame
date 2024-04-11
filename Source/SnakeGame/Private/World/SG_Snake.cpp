@@ -6,6 +6,7 @@
 #include "Core/Snake.h"
 #include "World/SG_WorldTypes.h"
 #include "Core/Types.h"
+#include "World/SG_ObjectPool.h"
 
 ASG_Snake::ASG_Snake()
 {
@@ -14,14 +15,15 @@ ASG_Snake::ASG_Snake()
 
 void ASG_Snake::SetModel(const TSharedPtr<SnakeGame::Snake>& InSnake, uint32 InCellSize, const SnakeGame::FDimension& Dimension)
 {
+    InitObjectPool();
 
     MySnake = InSnake;
     CellSize = InCellSize;
     Dim = Dimension;
 
-    for (auto* LinkActor : SnakeLinks)
+    for (const auto& LinkActor : SnakeLinks)
     {
-        LinkActor->Destroy();
+        SnakeObjectPool->Add<ASG_SnakeLink>(LinkActor);
     }
     SnakeLinks.Empty();
 
@@ -29,14 +31,21 @@ void ASG_Snake::SetModel(const TSharedPtr<SnakeGame::Snake>& InSnake, uint32 InC
 
     const auto& Links = MySnake.Pin()->GetLinks();
 
-    uint32 i = 0;
     for (const auto& Link : Links)
     {
-        const bool bIsHead = i == 0;
-        SpawnSnakeLink(bIsHead ? SnakeHeadClass : SnakeBodyClass, Link);
-
-        ++i;
+        SpawnSnakeLink(SnakeLinkClass, Link);
     }
+}
+
+void ASG_Snake::InitObjectPool()
+{
+    constexpr int32 ReservedSnakeLinksNum = 10;
+
+    if (SnakeObjectPool) return;
+
+    SnakeObjectPool = NewObject<USG_ObjectPool>();
+    checkf(SnakeObjectPool, TEXT("SnakeObjectPool is failed to create so InitObjectPool is failed"));
+    SnakeObjectPool->Reserve<ASG_SnakeLink>(GetWorld(), ReservedSnakeLinksNum, SnakeLinkClass);
 }
 
 void ASG_Snake::UpdateColors(const FSnakeColors& Colors)
@@ -45,7 +54,8 @@ void ASG_Snake::UpdateColors(const FSnakeColors& Colors)
 
     for (int32 i = 0; i < SnakeLinks.Num(); i++)
     {
-        SnakeLinks[i]->UpdateColor(i == 0 ? Colors.SnakeHeadColor : Colors.SnakeBodyColor);
+        const bool bIsHead = i == 0;
+        SnakeLinks[i]->UpdateColor(bIsHead ? Colors.SnakeHeadColor : Colors.SnakeBodyColor);
     }
 }
 
@@ -59,7 +69,7 @@ void ASG_Snake::Tick(float DeltaTime)
     const auto& Links = MySnake.Pin()->GetLinks();
     auto* LinkPtr = Links.GetHead();
 
-    for (auto* LinkActor : SnakeLinks)
+    for (const auto& LinkActor : SnakeLinks)
     {
         LinkActor->SetActorLocation(SnakeGame::WorldUtils::PositionToVector(LinkPtr->GetValue(), CellSize, Dim));
         LinkPtr = LinkPtr->GetNextNode();
@@ -68,7 +78,7 @@ void ASG_Snake::Tick(float DeltaTime)
     // add links if snake ate food
     while (LinkPtr)
     {
-        SpawnSnakeLink(SnakeBodyClass, LinkPtr->GetValue());
+        SpawnSnakeLink(SnakeLinkClass, LinkPtr->GetValue());
 
         LinkPtr = LinkPtr->GetNextNode();
     }
@@ -80,9 +90,9 @@ ASG_SnakeLink* ASG_Snake::SpawnSnakeLink(UClass* Class, const SnakeGame::FPositi
     if (!World) return nullptr;
 
     const FTransform Transform = FTransform(SnakeGame::WorldUtils::PositionToVector(Position, CellSize, Dim));
-    auto* LinkActor = World->SpawnActorDeferred<ASG_SnakeLink>(Class, Transform);
+    auto* LinkActor = SnakeObjectPool->Pop<ASG_SnakeLink>(GetWorld(), Transform, SnakeLinkClass);
+
     LinkActor->UpdateScale(CellSize);
-    LinkActor->FinishSpawning(Transform);
     LinkActor->UpdateColor(SnakeBodyColor);
 
     SnakeLinks.Add(LinkActor);
@@ -92,7 +102,7 @@ ASG_SnakeLink* ASG_Snake::SpawnSnakeLink(UClass* Class, const SnakeGame::FPositi
 
 void ASG_Snake::PlayExplodeEffect()
 {
-    for (auto* LinkActor : SnakeLinks)
+    for (const auto& LinkActor : SnakeLinks)
     {
         LinkActor->PlayExplodeEffect();
     }

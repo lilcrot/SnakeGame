@@ -13,6 +13,7 @@ class Snake;
 }
 
 class ASG_SnakeLink;
+class USG_ObjectPool;
 
 UCLASS()
 class SNAKEGAME_API ASG_Snake : public AActor
@@ -29,10 +30,7 @@ public:
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-    TSubclassOf<ASG_SnakeLink> SnakeHeadClass;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-    TSubclassOf<ASG_SnakeLink> SnakeBodyClass;
+    TSubclassOf<ASG_SnakeLink> SnakeLinkClass;
 
 private:
     ASG_SnakeLink* SpawnSnakeLink(UClass* Class, const SnakeGame::FPosition& Position);
@@ -44,5 +42,10 @@ private:
     FLinearColor SnakeBodyColor;
 
     UPROPERTY()
-    TArray<ASG_SnakeLink*> SnakeLinks;
+    TArray<TObjectPtr<ASG_SnakeLink>> SnakeLinks;
+
+    UPROPERTY()
+    TObjectPtr<USG_ObjectPool> SnakeObjectPool;
+
+    void InitObjectPool();
 };

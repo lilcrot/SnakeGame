@@ -43,7 +43,7 @@ private:
 
     void UpdateGrid();
     bool CanUpdateTime(float DeltaSeconds);
-    bool IsDied() const;
+    bool IsDied(const FPosition& PrevTailPosition) const;
 
     void GenerateFood();
     bool IsFoodTaken() const;
