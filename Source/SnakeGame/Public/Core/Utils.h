@@ -20,14 +20,14 @@ public:
     {
         constexpr int32 NumWallsInLine = 2;
 
-        const uint32 startX = FMath::RandRange(1, Dim.Width - NumWallsInLine);
-        const uint32 startY = FMath::RandRange(1, Dim.Height - NumWallsInLine);
-        FPosition RandomPosition = {startX, startY};
+        const uint32 StartX = FMath::RandRange(1, Dim.Width - NumWallsInLine);
+        const uint32 StartY = FMath::RandRange(1, Dim.Height - NumWallsInLine);
+        FPosition RandomPosition = {StartX, StartY};
 
         do
         {
-            const uint32 currentIndex = PosToIndex(RandomPosition, Dim);
-            if (Cells[currentIndex] == ECellGridType::Empty)
+            const uint32 CurrentIndex = PosToIndex(RandomPosition, Dim);
+            if (Cells[CurrentIndex] == ECellGridType::Empty)
             {
                 Position = RandomPosition;
                 return true;
@@ -41,7 +41,7 @@ public:
                     RandomPosition.y = 1;
                 }
             }
-        } while (RandomPosition.x != startX || RandomPosition.y != startY);
+        } while (RandomPosition.x != StartX || RandomPosition.y != StartY);
 
         return false;
     }

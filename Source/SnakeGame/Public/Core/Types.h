@@ -50,7 +50,8 @@ enum class ECellGridType
 {
     Empty = 0,
     Wall,
-    Snake,
+    SnakeBody,
+    SnakeHead,
     Food
 };
 struct FSettings

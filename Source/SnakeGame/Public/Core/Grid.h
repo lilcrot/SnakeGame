@@ -33,6 +33,9 @@ public:
      */
     UE_NODISCARD bool GetRandomEmptyPosition(FPosition& Position) const;
 
+    void PrintDebug();
+
+
 private:
     TSharedPtr<IPositionRandomizer> GridPositionRandomizer;
 
@@ -40,9 +43,10 @@ private:
     TArray<ECellGridType> Cells;
 
     TMap<ECellGridType, TArray<uint32>> IndexesByTypeMap = {
-        {ECellGridType::Snake, {}},  //
-        {ECellGridType::Wall, {}},   //
-        {ECellGridType::Food, {}}    //
+        {ECellGridType::SnakeBody, {}},  //
+        {ECellGridType::SnakeHead, {}},  //
+        {ECellGridType::Wall, {}},       //
+        {ECellGridType::Food, {}}        //
     };
 
     void InitWalls();

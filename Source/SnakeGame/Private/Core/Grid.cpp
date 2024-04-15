@@ -28,9 +28,21 @@ Grid::Grid(const FDimension& InDim, const IPositionRandomizerPtr& Randomizer)
     InitWalls();
 }
 
-FDimension Grid::GetDimension() const
+void Grid::InitWalls()
 {
-    return Dim;
+    for (uint32 y = 0; y < Dim.Height; y++)
+    {
+        for (uint32 x = 0; x < Dim.Width; x++)
+        {
+            if (x == 0 || x == Dim.Width - 1 || y == 0 || y == Dim.Height - 1)
+            {
+                const uint32 Index = PosToIndex(x, y);
+
+                Cells[Index] = ECellGridType::Wall;
+                IndexesByTypeMap[ECellGridType::Wall].Add(Index);
+            }
+        }
+    }
 }
 
 void Grid::Update(const TPositionPtr* Links, const ECellGridType& CellType)
@@ -53,36 +65,12 @@ void Grid::Update(const FPosition& Position, const ECellGridType& CellType)
 void Grid::UpdateInternal(const FPosition& Position, const ECellGridType& CellType)
 {
     const uint32 Index = PosToIndex(Position);
+
+    /* SnakeHead can only overwrite empty cell */
+    if (CellType == ECellGridType::SnakeHead && Cells[Index] != ECellGridType::Empty) return;
+
     Cells[Index] = CellType;
     IndexesByTypeMap[CellType].Add(Index);
-}
-
-bool Grid::HitTest(const FPosition& Position, const ECellGridType& CellType) const
-{
-    return Cells[PosToIndex(Position)] == CellType;
-}
-
-UE_NODISCARD bool Grid::GetRandomEmptyPosition(FPosition& Position) const
-{
-    if (!GridPositionRandomizer) return false;
-    return GridPositionRandomizer->GeneratePosition(Dim, Cells, Position);
-}
-
-void Grid::InitWalls()
-{
-    for (uint32 y = 0; y < Dim.Height; y++)
-    {
-        for (uint32 x = 0; x < Dim.Width; x++)
-        {
-            if (x == 0 || x == Dim.Width - 1 || y == 0 || y == Dim.Height - 1)
-            {
-                const uint32 Index = PosToIndex(x, y);
-
-                Cells[Index] = ECellGridType::Wall;
-                IndexesByTypeMap[ECellGridType::Wall].Add(Index);
-            }
-        }
-    }
 }
 
 void Grid::FreeCellsByType(const ECellGridType& CellType)
@@ -109,4 +97,46 @@ uint32 Grid::PosToIndex(const FPosition& Position) const
 FPosition Grid::GetCenter(const uint32 Width, const uint32 Height)
 {
     return FPosition(Width / 2 + 1, Height / 2 + 1);
+}
+
+FDimension Grid::GetDimension() const
+{
+    return Dim;
+}
+
+bool Grid::HitTest(const FPosition& Position, const ECellGridType& CellType) const
+{
+    const uint32 Index = PosToIndex(Position);
+    return Cells[Index] == CellType;
+}
+
+UE_NODISCARD bool Grid::GetRandomEmptyPosition(FPosition& Position) const
+{
+    if (!GridPositionRandomizer) return false;
+    return GridPositionRandomizer->GeneratePosition(Dim, Cells, Position);
+}
+
+void Grid::PrintDebug()
+{
+#if !UE_BUILD_SHIPPING
+    for (uint32 y = 0; y < Dim.Height; y++)
+    {
+        FString Line;
+        for (uint32 x = 0; x < Dim.Width; ++x)
+        {
+            TCHAR Symbol{};
+            switch (Cells[PosToIndex(x, y)])
+            {
+                case ECellGridType::Empty: Symbol = '0'; break;
+                case ECellGridType::Wall: Symbol = '*'; break;
+                case ECellGridType::SnakeBody: Symbol = '_'; break;
+                case ECellGridType::SnakeHead: Symbol = 'S'; break;
+
+                case ECellGridType::Food: Symbol = 'F'; break;
+            }
+            Line.AppendChar(Symbol).AppendChar(' ');
+        }
+        UE_LOG(LogGrid, Display, TEXT("%s"), *Line);
+    }
+#endif
 }
