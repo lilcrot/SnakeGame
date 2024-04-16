@@ -52,12 +52,12 @@ void FSnakeGrid::Define()
                 TestTrueExpr(CoreGrid.HitTest(FPosition(5, 6), ECellGridType::Empty));
                 TestTrueExpr(CoreGrid.HitTest(FPosition(4, 6), ECellGridType::Empty));
 
-                CoreGrid.Update(CoreSnake->GetLinks().GetHead(), ECellGridType::Snake);
+                CoreGrid.Update(CoreSnake->GetLinks().GetHead(), ECellGridType::SnakeBody);
 
-                TestTrueExpr(CoreGrid.HitTest(FPosition(7, 6), ECellGridType::Snake));
-                TestTrueExpr(CoreGrid.HitTest(FPosition(6, 6), ECellGridType::Snake));
-                TestTrueExpr(CoreGrid.HitTest(FPosition(5, 6), ECellGridType::Snake));
-                TestTrueExpr(CoreGrid.HitTest(FPosition(4, 6), ECellGridType::Snake));
+                TestTrueExpr(CoreGrid.HitTest(FPosition(7, 6), ECellGridType::SnakeBody));
+                TestTrueExpr(CoreGrid.HitTest(FPosition(6, 6), ECellGridType::SnakeBody));
+                TestTrueExpr(CoreGrid.HitTest(FPosition(5, 6), ECellGridType::SnakeBody));
+                TestTrueExpr(CoreGrid.HitTest(FPosition(4, 6), ECellGridType::SnakeBody));
             });
 
         It("HitTest.CellReleaseShouldBeCorrect",
@@ -80,7 +80,7 @@ void FSnakeGrid::Define()
                 Links.AddTail(FPosition(1, 1));
                 Links.AddTail(FPosition(1, 2));
                 Links.AddTail(FPosition(2, 1));
-                CoreGrid.Update(Links.GetHead(), ECellGridType::Snake);
+                CoreGrid.Update(Links.GetHead(), ECellGridType::SnakeBody);
 
                 FPosition FoodPosition;
                 const bool Founded = CoreGrid.GetRandomEmptyPosition(FoodPosition);
@@ -98,7 +98,7 @@ void FSnakeGrid::Define()
                 Links.AddTail(FPosition(1, 2));
                 Links.AddTail(FPosition(2, 1));
                 Links.AddTail(FPosition(2, 2));
-                CoreGrid.Update(Links.GetHead(), ECellGridType::Snake);
+                CoreGrid.Update(Links.GetHead(), ECellGridType::SnakeBody);
 
                 FPosition FoodPosition;
                 const bool Founded = CoreGrid.GetRandomEmptyPosition(FoodPosition);

@@ -79,10 +79,7 @@ private:
             {EGridSize::Size_80x20, {"80x20", SnakeGame::FDimension{80, 20}}},  //
         };
 
-    UPROPERTY(Config)
     FSpeedData CurrentSpeed = GameSpeedsMap[EGameSpeed::Snake];
-
-    UPROPERTY(Config)
     FGridData CurrentGridSize = GridSizesMap[EGridSize::Size_50x15];
 
     template <typename MapType, typename EnumType>

@@ -37,8 +37,6 @@ void USG_GameUserSettings::SaveSnakeSettings(const EGameSpeed& GameSpeed, const 
 
     CurrentSpeed = GameSpeedsMap[GameSpeed];
     CurrentGridSize = GridSizesMap[GridSize];
-
-    ApplySettings(false);
 }
 
 EGameSpeed USG_GameUserSettings::GetGameSpeedByName(const FString& Name) const
